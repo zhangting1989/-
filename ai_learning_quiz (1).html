@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>普通人AI学习路径测评</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh;padding:20px}
+.container{max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:28px 24px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.header{text-align:center;margin-bottom:28px}
+.header h1{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:6px}
+.header p{font-size:14px;color:#888;line-height:1.6}
+.prog-bar{height:4px;background:#eee;border-radius:2px;margin-bottom:24px}
+.prog-fill{height:100%;background:#1a1a1a;border-radius:2px;transition:width 0.4s}
+.q-num{font-size:12px;color:#aaa;margin-bottom:6px;letter-spacing:.04em}
+.q-text{font-size:17px;font-weight:500;color:#1a1a1a;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:13px 15px;text-align:left;cursor:pointer;font-size:15px;color:#1a1a1a;display:flex;align-items:center;gap:12px;transition:all 0.15s;width:100%}
+.opt:hover{background:#f7f7f5;border-color:#bbb}
+.opt.sel{border:2px solid #1a1a1a;background:#f7f7f5}
+.opt-lbl{width:22px;height:22px;border-radius:50%;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;flex-shrink:0}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.nav-btn{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;color:#1a1a1a}
+.nav-btn:hover{background:#f7f7f5}
+.nav-btn.pri{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.q-counter{font-size:13px;color:#aaa}
+
+/* result */
+.result{display:none}
+.route-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;margin-bottom:14px}
+.ba{background:#E1F5EE;color:#085041}
+.bb{background:#EEEDFE;color:#3C3489}
+.bc{background:#FAEEDA;color:#633806}
+.r-title{font-size:21px;font-weight:600;color:#1a1a1a;margin-bottom:6px}
+.r-sub{font-size:14px;color:#666;line-height:1.7;margin-bottom:20px}
+.divider{border:none;border-top:1px solid #f0f0f0;margin:20px 0}
+
+/* roadmap */
+.roadmap-title{font-size:13px;color:#aaa;margin-bottom:12px;letter-spacing:.04em}
+.layer{display:flex;align-items:stretch;gap:10px;margin-bottom:8px}
+.layer-box{flex:1;border-radius:10px;padding:12px 14px;border:1px solid transparent}
+.layer-tag{flex-shrink:0;width:52px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:11px;font-weight:600;padding:4px 0;height:auto;align-self:stretch}
+.l1{background:#E1F5EE;border-color:#9FE1CB}.l1 .layer-tag{background:#9FE1CB;color:#085041}
+.l2{background:#E1F5EE;border-color:#9FE1CB}.l2 .layer-tag{background:#9FE1CB;color:#085041}
+.l3{background:#EEEDFE;border-color:#CECBF6}.l3 .layer-tag{background:#CECBF6;color:#3C3489}
+.l4{background:#FAEEDA;border-color:#FAC775}.l4 .layer-tag{background:#FAC775;color:#633806}
+.l5{background:#f7f7f5;border-color:#e0e0e0}.l5 .layer-tag{background:#e0e0e0;color:#5F5E5A}
+.l6{background:#f7f7f5;border-color:#e0e0e0}.l6 .layer-tag{background:#e0e0e0;color:#5F5E5A}
+.layer-name{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
+.layer-desc{font-size:12px;color:#888;line-height:1.5}
+.layer-arrow{text-align:center;color:#ccc;font-size:12px;margin-bottom:4px;margin-left:62px}
+.you-are{font-size:11px;font-weight:600;background:#1a1a1a;color:#fff;padding:2px 8px;border-radius:100px;margin-left:8px;vertical-align:middle}
+
+/* plan */
+.plan-section-title{font-size:13px;color:#aaa;margin:20px 0 12px;letter-spacing:.04em}
+.week-hd{font-size:14px;font-weight:600;color:#1a1a1a;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.week-tag{font-size:11px;color:#888;background:#f2f2f2;padding:2px 8px;border-radius:100px;font-weight:400}
+.day-row{display:flex;gap:12px;margin-bottom:14px}
+.day-num{font-size:11px;color:#bbb;min-width:44px;padding-top:2px;flex-shrink:0;line-height:1.4}
+.day-task{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:3px}
+.day-detail{font-size:13px;color:#666;line-height:1.6}
+.current-layer{background:#fff8e1;border-radius:6px;padding:6px 10px;font-size:12px;color:#633806;margin-top:6px;border-left:3px solid #FAC775}
+
+.restart-btn{width:100%;margin-top:20px;padding:14px;font-size:15px;font-weight:500;border-radius:12px;cursor:pointer;background:#1a1a1a;color:#fff;border:none}
+.dot-wrap{text-align:center;padding:3rem 0}
+.dot{display:inline-block;width:7px;height:7px;background:#ccc;border-radius:50%;margin:0 3px;animation:bk 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bk{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+.footer-note{font-size:13px;color:#aaa;text-align:center;line-height:1.7;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>普通人AI学习路径测评</h1>
+    <p>回答7个问题，找到适合你的起点和30天行动计划</p>
+  </div>
+
+  <div id="quiz">
+    <div class="prog-bar"><div class="prog-fill" id="prog" style="width:14%"></div></div>
+    <div id="qa"></div>
+    <div class="nav">
+      <button class="nav-btn" id="bb" onclick="back()">← 上一题</button>
+      <span class="q-counter" id="qc"></span>
+      <button class="nav-btn pri" id="bn" onclick="next()">下一题 →</button>
+    </div>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const Qs=[
+  {q:"你学AI最想解决的问题是？",o:["提高工作效率，省时省力","做副业或接单赚钱","找到新方向或转型","怕被时代抛下，先了解再说"]},
+  {q:"你现在的时间状态是？",o:["在职，每天只有1小时以内","在职，每天能挤出1-2小时","全职在家/已离职，时间较充裕","自由职业，时间弹性"]},
+  {q:"你用过AI工具吗？",o:["完全没用过","用过但不知道怎么高效用","经常用1-2个，想系统学","用过不少，现在想找变现方向"]},
+  {q:"你有积累的领域是？",o:["文字写作/内容/运营","图片/设计/视觉","销售/商业/管理","技术/数据/分析"]},
+  {q:"你希望多久看到效果？",o:["1个月内，越快越好","1-3个月，打好基础","3个月以上，系统学","没想好，先动起来再说"]},
+  {q:"你觉得自己最大的障碍是？",o:["不知道从哪开始","容易三分钟热度","看不懂英文/操作有门槛","不知道怎么变现"]},
+  {q:"你对AI的收入期待是？",o:["暂时不想变现，先提升自己","每月多赚几千块","每月1-3万，成为主要收入","做IP或课程，不设上限"]}
+];
+
+let cur=0,ans=[];
+
+function render(){
+  const q=Qs[cur];
+  document.getElementById('prog').style.width=Math.round((cur/Qs.length)*100+14)+'%';
+  document.getElementById('qc').textContent=(cur+1)+' / '+Qs.length;
+  document.getElementById('bb').disabled=cur===0;
+  document.getElementById('bn').textContent=cur===Qs.length-1?'查看我的方案 →':'下一题 →';
+  const lb=['A','B','C','D'];
+  let h='<div class="q-num">第 '+(cur+1)+' 题</div><div class="q-text">'+q.q+'</div><div class="opts">';
+  q.o.forEach((o,i)=>{
+    h+=`<button class="opt${ans[cur]===i?' sel':''}" onclick="pick(${i})"><span class="opt-lbl">${lb[i]}</span>${o}</button>`;
+  });
+  h+='</div>';
+  document.getElementById('qa').innerHTML=h;
+}
+
+function pick(i){ans[cur]=i;render();}
+function back(){if(cur>0){cur--;render();}}
+function next(){
+  if(ans[cur]===undefined)return;
+  if(cur<Qs.length-1){cur++;render();}
+  else showResult();
+}
+
+function calcRoute(){
+  let s={A:0,B:0,C:0};
+  if(ans[0]===0)s.A+=3;
+  if(ans[0]===1)s.B+=3;
+  if(ans[0]===2||ans[0]===3)s.C+=2;
+  if(ans[1]===0||ans[1]===1)s.A+=1;
+  if(ans[1]===2||ans[1]===3)s.B+=1;
+  if(ans[4]===0||ans[4]===3)s.B+=1;
+  if(ans[4]===2)s.C+=2;
+  if(ans[6]===0)s.A+=2;
+  if(ans[6]===1)s.B+=1;
+  if(ans[6]===2)s.B+=2;
+  if(ans[6]===3)s.C+=3;
+  return Object.keys(s).sort((x,y)=>s[y]-s[x])[0];
+}
+
+function calcLevel(){
+  // 根据工具使用经验和目标判断当前层级
+  const toolExp=ans[2]; // 0=没用过 1=用过不会 2=经常用 3=多工具
+  const goal=ans[0];    // 0=提效 1=变现 2=转型 3=了解
+  if(toolExp===0)return 0; // 在第一层之前
+  if(toolExp===1)return 1; // 第一层
+  if(toolExp===2&&goal===0)return 2; // 第二层
+  if(toolExp===2&&(goal===1||goal===2))return 2;
+  if(toolExp===3)return 3;
+  return 1;
+}
+
+const plans={
+  A:{
+    badge:'ba',label:'工具提效路线',
+    title:'你适合走「工具提效」路线',
+    sub:'核心逻辑：不需要学很多，找准自己最耗时的2-3件事，用AI替代，30天就能看到明显变化。先从国内工具入手，门槛低、不用解决网络问题。',
+    weeks:[
+      {w:'第一周',tag:'搞懂AI能干什么（第一层）',days:[
+        {d:'Day 1',t:'下载豆包App，注册账号',det:'在手机应用商店直接搜索「豆包」，字节跳动出品，国内网络直接用，免费。这是你第一个AI工具。'},
+        {d:'Day 2-3',t:'用豆包完成3件日常小事',det:'比如：让它帮你写一条朋友圈、整理一段乱糟糟的文字、回答一个你最近在想的问题。感受一下AI是什么感觉。'},
+        {d:'Day 4-5',t:'再试DeepSeek，对比差异',det:'打开 chat.deepseek.com，同样免费，国内直接访问。把同一个问题分别问豆包和DeepSeek，看结果有什么不同。'},
+        {d:'Day 6-7',t:'列出你工作中最耗时的5件事',det:'打开备忘录，写下每天重复在做的事，选出最花时间的2件。这2件就是接下来AI优先替代的方向。'}
+      ]},
+      {w:'第二周',tag:'用顺一个工具（第二层）',days:[
+        {d:'Day 8-10',t:'用AI处理第一件耗时事',det:'把你选的第一件耗时事丢给豆包或DeepSeek，比如「帮我把这段会议记录整理成要点」，感受差别。'},
+        {d:'Day 11-12',t:'学会写好提示词的基本方法',det:'核心只有一条：描述越具体，结果越好。练习：同一个需求，用3种不同方式表达，对比哪种结果最好用。'},
+        {d:'Day 13-14',t:'搞定第二件耗时事',det:'复制上面的方法，对准第二个场景继续练。这周结束时你应该已经能稳定用AI出结果了。'}
+      ]},
+      {w:'第三周',tag:'建立固定工作流',days:[
+        {d:'Day 15-16',t:'（可选）注册Claude或ChatGPT',det:'如果前两周感觉国内工具不够用，这时候再考虑注册海外工具。需要解决网络问题，可以搜索「科学上网」了解方法。'},
+        {d:'Day 17-19',t:'把AI嵌入一个固定工作场景',det:'比如：每次写周报前先把要点丢给AI起草，你再修改。让这个步骤变成习惯，目标是每天省出30分钟。'},
+        {d:'Day 20-21',t:'量化AI帮你节省了多少时间',det:'做同一件事，一次用AI一次不用，记录时间对比。这个数据很重要，是你继续投入的动力。'}
+      ]},
+      {w:'第四周',tag:'固化+扩展',days:[
+        {d:'Day 22-25',t:'扩展到第三个工作场景',det:'继续复制前两周的方法，把AI使用范围再扩大一个场景。'},
+        {d:'Day 26-28',t:'整理你的「常用提示词库」',det:'把这30天写过的好用提示词都收集起来，存在备忘录，下次直接调用。'},
+        {d:'Day 29-30',t:'写一次30天复盘',det:'记录：哪几件事效率提升最明显、AI还解决不了什么、下一步想学什么。'}
+      ]}
+    ]
+  },
+  B:{
+    badge:'bb',label:'副业变现路线',
+    title:'你适合走「副业变现」路线',
+    sub:'核心逻辑：先把一个已有技能用AI放大，再找到愿意付费的人。不需要从零开始，你的经验就是起点。先用国内工具把基本功打好，再考虑海外工具。',
+    weeks:[
+      {w:'第一周',tag:'搞懂AI+找到切口（第一二层）',days:[
+        {d:'Day 1',t:'下载豆包，注册DeepSeek',det:'豆包在手机应用商店下载，DeepSeek打开 chat.deepseek.com。两个都免费，国内网络直接用，先从这两个入门。'},
+        {d:'Day 2-3',t:'用AI做出第一个真实作品',det:'结合你的背景，让AI帮你写一篇推广文案、生成一套方案框架、整理一份报告。完成比完美重要。'},
+        {d:'Day 4-5',t:'研究3个已经在用AI赚钱的人',det:'在抖音/小红书搜「AI副业」「AI接单」，看他们做什么、用什么工具、收多少钱。抄作业比自己摸索快10倍。'},
+        {d:'Day 6-7',t:'确定你第一个可以卖的技能方向',det:'问自己：身边有没有人愿意为「让AI帮我做XX」付钱？哪怕100元，这就是起点。'}
+      ]},
+      {w:'第二周',tag:'打磨可交付的成果',days:[
+        {d:'Day 8-10',t:'把作品改三遍，练习人工润色',det:'AI初稿通常有70分，剩下30分靠你的判断和修改。反复改，找到你和AI配合的节奏。'},
+        {d:'Day 11-12',t:'（可选）注册Claude或ChatGPT',det:'如果发现国内工具在你的场景里不够用，现在可以考虑注册海外工具，需要解决网络问题。'},
+        {d:'Day 13-14',t:'写一个「服务介绍」',det:'写清楚：你能帮谁做什么、交付什么成果、大概多长时间。先不用发出去，存着备用。'}
+      ]},
+      {w:'第三周',tag:'找第一单（第二层巩固）',days:[
+        {d:'Day 15-16',t:'从身边人开始，找第一个真实需求',det:'不用上平台，从朋友、同事、前同事里找。谁最近在抱怨什么工作很烦？你能不能用AI帮他解决？'},
+        {d:'Day 17-19',t:'完成第一次交付，哪怕免费',det:'如果收费有顾虑，先免费帮一个人做，拿到真实反馈，比任何课程都值钱。'},
+        {d:'Day 20-21',t:'把交付过程记录成SOP',det:'写下：用了哪些工具、哪些提示词、花了多少时间、哪里出了问题。这是你以后接单的底层资产。'}
+      ]},
+      {w:'第四周',tag:'准备复制扩展',days:[
+        {d:'Day 22-25',t:'接第二单，这次要收费',det:'哪怕收100-300元，付费关系会让双方都更认真，你也会更快成长。'},
+        {d:'Day 26-28',t:'优化工具组合，建立自己的工作流',det:'回顾这30天，哪些工具真正帮你出过活？保留3-5个核心工具，删掉用不上的。'},
+        {d:'Day 29-30',t:'写第一个月变现复盘',det:'记录：收了多少钱、花了多少时间、用了哪些工具、下一步想做什么。'}
+      ]}
+    ]
+  },
+  C:{
+    badge:'bc',label:'系统成长路线',
+    title:'你适合走「系统成长」路线',
+    sub:'核心逻辑：先建立对AI的整体认知，再一层一层往上走。不要一开始就追求变现，先把底层理解打牢，走得稳比走得快更重要。',
+    weeks:[
+      {w:'第一周',tag:'第一层：搞懂AI能干什么',days:[
+        {d:'Day 1',t:'下载豆包，注册DeepSeek',det:'豆包在应用商店下载，DeepSeek打开 chat.deepseek.com。两个都免费，国内网络直接用，这是你的起点。'},
+        {d:'Day 2-4',t:'看吴恩达「AI for Everyone」课程',det:'去 coursera.org 搜索「AI for Everyone」，免费旁听，有中文字幕，不讲代码，专门给普通人看的。建立AI基础认知框架。'},
+        {d:'Day 5-6',t:'用豆包/DeepSeek每天做3件不同的事',det:'不求精通，只求体验。写作、问问题、整理信息都试试，感受AI在哪些事上真的好用。'},
+        {d:'Day 7',t:'用自己的话写下：AI能做什么、不能做什么',det:'不用查资料，只写你亲身体验后的判断。写错没关系，这是你的起点认知。'}
+      ]},
+      {w:'第二周',tag:'第二层：用顺一个工具',days:[
+        {d:'Day 8-10',t:'选定一个工具，连续3天深度用',det:'在豆包和DeepSeek里选一个你更顺手的，连续3天每天至少用它做5件不同的事，不要跳来跳去。'},
+        {d:'Day 11-12',t:'学会写好提示词',det:'核心：描述越具体，结果越好。练习：同一个需求，用5种不同方式表达，对比结果差异，找到最有效的表达方式。'},
+        {d:'Day 13-14',t:'（可选）注册Claude或ChatGPT，感受差异',det:'如果国内工具已经用顺了，可以考虑试试海外工具，需要解决网络问题。对比一下，判断对你来说值不值得折腾。'}
+      ]},
+      {w:'第三周',tag:'第三层方向探索：无代码智能体',days:[
+        {d:'Day 15-17',t:'了解「智能体」是什么',det:'在豆包里找「智能体」功能，或者在扣子（coze.cn）注册账号，体验一下拖拽配置智能体是什么感觉。不用学会，先见识一下。'},
+        {d:'Day 18-19',t:'用AI完成一个完整的真实项目',det:'不要练习题，要真实的。比如用AI帮你规划一件事、写一份完整方案、整理一个复杂问题，完整走一遍。'},
+        {d:'Day 20-21',t:'找一个同频的人交流',det:'把你这两周学到的讲给一个朋友听。能讲清楚说明你真的懂了，讲不清楚说明还需要再消化。'}
+      ]},
+      {w:'第四周',tag:'输出验证，找到自己的方向',days:[
+        {d:'Day 22-25',t:'把学习整理成一篇笔记或分享',det:'写下你30天的收获、踩过的坑、真实感受。不用发出去，写完自己看，会发现比想象中学到了更多。'},
+        {d:'Day 26-28',t:'判断下一步：Vibe Coding还是继续深化工具？',det:'Vibe Coding是用说话让AI写程序，不用自己写代码。如果你对「做产品」感兴趣，可以作为下一个方向研究。Python编程和AI底层原理是进阶路，普通人不急着学。'},
+        {d:'Day 29-30',t:'制定下一个30天计划',det:'AI更新很快，不要停。用今天的方法，给自己写下一个月的具体计划，保持学习节奏。'}
+      ]}
+    ]
+  }
+};
+
+const roadmapLayers=[
+  {cls:'l1',tag:'必须',name:'第一层：搞懂AI能干什么',desc:'推荐：吴恩达AI课，免费，中文字幕，不讲代码'},
+  {cls:'l2',tag:'必须',name:'第二层：用顺一个工具',desc:'路径：豆包/DeepSeek入门 → GPT/Claude进阶'},
+  {cls:'l3',tag:'可选',name:'第三层：无代码搭智能体',desc:'用扣子等平台，拖拽配置，需持续喂养'},
+  {cls:'l4',tag:'选学',name:'Vibe Coding（新兴）',desc:'说话让AI写程序，不用自己写代码'},
+  {cls:'l5',tag:'进阶',name:'第四层：Python编程',desc:'想开发AI产品卖给别人才需要，普通人跳过'},
+  {cls:'l6',tag:'进阶',name:'第五层：AI底层原理',desc:'研究AI怎么运作的，开车不需要懂发动机'}
+];
+
+function buildRoadmap(level){
+  let h='<div class="roadmap-title">你当前在路线图的位置</div>';
+  roadmapLayers.forEach((l,i)=>{
+    if(i>0&&i<4)h+=`<div class="layer-arrow">↓</div>`;
+    if(i===4)h+=`<div class="layer-arrow" style="border-top:1px dashed #ddd;margin-bottom:8px"></div>`;
+    const youAre=(i===level)?'<span class="you-are">← 你在这里</span>':'';
+    h+=`<div class="layer ${l.cls}">
+      <div class="layer-tag">${l.tag}</div>
+      <div class="layer-box" style="border:none;background:transparent;padding:10px 0">
+        <div class="layer-name">${l.name}${youAre}</div>
+        <div class="layer-desc">${l.desc}</div>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+
+function showResult(){
+  document.getElementById('quiz').style.display='none';
+  const r=document.getElementById('result');
+  r.style.display='block';
+  r.innerHTML='<div class="dot-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div><p style="margin-top:1rem;font-size:14px;color:#aaa">正在生成你的专属方案…</p></div>';
+  setTimeout(()=>{
+    const rt=calcRoute();
+    const lv=calcLevel();
+    const p=plans[rt];
+    let h=`<div class="route-badge ${p.badge}">${p.label}</div>
+      <div class="r-title">${p.title}</div>
+      <div class="r-sub">${p.sub}</div>
+      <div class="divider"></div>
+      ${buildRoadmap(lv)}
+      <div class="divider"></div>
+      <div class="plan-section-title">你的30天每日行动计划</div>`;
+    p.weeks.forEach(w=>{
+      h+=`<div class="week-hd">${w.w}<span class="week-tag">${w.tag}</span></div>`;
+      w.days.forEach(d=>{
+        h+=`<div class="day-row">
+          <div class="day-num">${d.d}</div>
+          <div>
+            <div class="day-task">${d.t}</div>
+            <div class="day-detail">${d.det}</div>
+          </div>
+        </div>`;
+      });
+    });
+    h+=`<div class="divider"></div>
+      <p class="footer-note">关注抖音「三十七岁的AI自习室」<br>每隔一天更新AI学习记录，从0开始，全程真实</p>
+      <button class="restart-btn" onclick="restart()">重新测评</button>`;
+    r.innerHTML=h;
+  },1000);
+}
+
+function restart(){
+  cur=0;ans=[];
+  document.getElementById('result').style.display='none';
+  document.getElementById('result').innerHTML='';
+  document.getElementById('quiz').style.display='block';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
